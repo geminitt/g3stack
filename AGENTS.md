@@ -1,36 +1,43 @@
-# g3stack Development Instructions
+# g3stack Repository Instructions
 
-## Purpose
+This repository maintains a full pstack-derived distribution for Codex, with
+g3stack goal ownership across Research and Engineering. Preserve complete
+procedures, resources, source identities and author notices during conversion.
+It is not a background agent service.
 
-g3stack is the source repository for a reusable AI agent environment for OpenAI Codex and Claude Code.
+## Source authority
 
-It supports Research, Engineering, and hybrid workflows. It is not a test application or a storage location for unrelated project state.
+- `instructions/personal.md`: sole source of personal global agreements.
+- `codex/skills/g3stack/SKILL.md`: main coordination procedure.
+- `codex/GOAL.md`: cross-skill goal ownership and premise recovery.
+- `codex/CODEX.md`: authoritative host interpretation of source terminology.
+- `codex/skills/`: full task, specialist and principle procedures.
+- `codex/provenance.json`: complete pinned conversion accounting.
+- `vendor/`: immutable original resources and notices.
+- `scripts/convert-pstack.py`: deterministic conversion and retention check.
+- `integrations/`: host documentation and byte-identical global candidates.
+- `.agents/skills/task-router/` and `instructions/core.md`: compatibility pointers.
+- `archive/pre-pstack-conversion/`: superseded source, not active procedure.
+- `docs/architecture.md`: explanatory architecture, not a second policy.
 
-## Design Principles
+## Development rules
 
-- Keep global instructions concise and independent of specific projects.
-- Separate shared behavior from agent-specific integrations.
-- Use skills for reusable, task-specific procedures.
-- Add tools, hooks, scripts, and specialized agents only when they solve a defined problem.
-- Support exploration in empty projects without requiring extensive documentation.
-- Prefer executable verification over additional prose instructions.
-- Keep the environment simple, portable, and maintainable.
-
-## Development Rules
-
-- Inspect existing files and decisions before proposing changes.
-- Explain the problem, proposed change, expected result, and verification method.
-- Prefer targeted, reversible changes over broad redesigns.
-- Preserve existing user-approved requirements unless their revision is explicitly approved.
-- Verify agent-specific behavior against current official documentation.
-- Distinguish documented facts, observations, hypotheses, and recommendations.
-- Do not claim successful verification without supporting evidence.
-- Do not install, activate, overwrite, or deploy configurations without authorization.
-- Never expose credentials or execute paid operations without approval.
+- Start from the current goal, the observed gap, and the smallest necessary
+  change. Do not build documents, skills, or tests simply to grow the stack.
+- Keep empty-project exploration usable with no required scaffold.
+- Preserve correct authorization, toolchain restrictions, evidence standards,
+  and user-approved decisions. Explain material behavior changes.
+- Prefer native Codex/Claude mechanisms over invented parallel infrastructure.
+  Verify current host behavior before asserting support.
+- After changing personal agreements, regenerate global candidates from that
+  one source. Core and adapters are not global inputs. Static byte equality
+  does not prove runtime use.
+- Do not install, activate, commit, push, deploy, or run paid services without
+  the respective owner authorization. Keep edits targeted and reversible.
 
 ## Communication
 
-- Communicate with the owner in Vietnamese.
-- Write code, configurations, instructions, and technical documentation in English.
-- Apply the clarity and consistency principles of ASD-STE100 Issue 9.
-- Provide complete, copy-ready content and explain how to apply and verify it.
+- Explain to the owner in Vietnamese. Provide complete copy-ready English
+  technical artifacts. Use precise terms and straightforward explanations.
+- Separate documented facts, actual observations, hypotheses and
+  recommendations. Report what has and has not been verified.

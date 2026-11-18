@@ -1,0 +1,8 @@
+# Keep shell/Python sources usable when the checkout moves between systems.
+* text=auto eol=lf
+
+# Pinned resources and frozen inputs are verified byte for byte.
+vendor/** -text
+codex/** -text
+archive/** -text
+tests/fixtures/** -text

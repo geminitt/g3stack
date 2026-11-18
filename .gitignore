@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.local/
+
+# Keep local logs, deployment receipts and recovery archives on this machine.
+/runs/
+/experiments/
+# Superseded assessments remain local; current usage is in README and docs/.
+/docs/kit-selection.md
+/docs/proposals/

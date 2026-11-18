@@ -42,11 +42,16 @@ import tomllib
 import uuid
 
 
-SOURCES = ("instructions/core.md", "instructions/environment.md",
-           "integrations/codex/adapter.md")
+SOURCE = "instructions/personal.md"
 ARTIFACT = "integrations/codex/AGENTS.generated.md"
 MAX_BYTES = 4 * 1024 * 1024
 ROOT = Path(__file__).resolve().parent.parent
+LEGACY_NAMES = (
+    "g3-build", "g3-debug", "g3-design", "g3-diagram", "g3-experiment", "g3-formal",
+    "g3-measure", "g3-plan", "g3-prototype", "g3-recover", "g3-refactor",
+    "g3-research", "g3-review", "g3-security", "g3-ui", "g3-verify",
+)
+
 SYSTEM_UID = Path("/").stat().st_uid  # Also supports a user-namespace-mapped root.
 
 
@@ -138,9 +143,13 @@ def context():
 
 
 def targets(ctx):
-    return {"artifact": ROOT / ARTIFACT,
-            "instructions": Path(ctx["codex_home"]) / "AGENTS.md",
-            "router": Path(ctx["home"]) / ".agents/skills/task-router"}
+    skills = Path(ctx["home"]) / ".agents/skills"
+    locations = {"artifact": ROOT / ARTIFACT,
+                 "instructions": Path(ctx["codex_home"]) / "AGENTS.md",
+                 "router": skills / "task-router"}
+    locations.update({"skill:" + name: skills / name
+                      for name in (*checker()["skill_sources"](ROOT), *LEGACY_NAMES)})
+    return locations
 
 
 def missing_parents(paths):
@@ -160,33 +169,42 @@ def checker():
 
 
 def source_inputs(guards):
-    data = []
-    for relative in SOURCES:
-        path = ROOT / relative
-        ancestors(path)
-        require(state(path)["kind"] == "file", f"Missing/invalid source: {path}")
-        guards[str(path)] = state(path)
-        data.append(read_regular(path))
-    # Same raw-byte convention as check-codex-integration.py. No normalization.
-    expected = b"\n".join(data)
+    path = ROOT / SOURCE
+    ancestors(path)
+    require(state(path)["kind"] == "file", f"Missing/invalid source: {path}")
+    guards[str(path)] = state(path)
+    # One source, copied byte for byte. Core and adapters are not global input.
+    expected = read_regular(path)
     require(expected.strip(), "Empty generated instructions")
-    # Validate local references from the real source, including shared playbooks.
-    pending = [ROOT / ".agents/skills/task-router/SKILL.md"]
-    while pending:
-        path = pending.pop().resolve(strict=True)
-        require(path.is_relative_to(ROOT), f"Source reference escapes repository: {path}")
-        if str(path) in guards:
+    # Bind the complete converted distribution and immutable source, not just
+    # Markdown links (many upstream links are examples, not package resources).
+    converter = runpy.run_path(str(ROOT / "scripts/convert-pstack.py"))
+    outputs = converter["converted"](ROOT)
+    distribution = ROOT / "codex"
+    actual = {str(p.relative_to(distribution)) for p in distribution.rglob("*") if p.is_file()}
+    require(actual == set(outputs) | converter["LOCAL"], "Converted resource set differs")
+    require(not any(p.is_symlink() for p in distribution.rglob("*")), "Linked converted resource")
+    for relative, data in outputs.items():
+        require(read_regular(distribution / relative) == data, "Converted resource changed: " + relative)
+    paths = list(distribution.rglob("*")) + list((ROOT / "vendor/pstack").rglob("*"))
+    paths.extend(ROOT / relative for relative in (
+        ".agents/skills/task-router/SKILL.md", ".agents/skills/task-router/agents/openai.yaml",
+        "scripts/convert-pstack.py",
+        "scripts/check-codex-integration.py", "scripts/manage-codex-integration.py",
+        "vendor/source-manifest.json", "kits/engineering/check.py"))
+    for path in paths:
+        if path.is_dir():
             continue
-        require(state(path)["kind"] == "file", f"Invalid source reference: {path}")
+        ancestors(path)
+        require(state(path)["kind"] == "file", f"Required source unavailable: {path}")
         guards[str(path)] = state(path)
-        text = read_regular(path).decode("utf-8")
-        for reference in re.findall(r"\[[^\]]*\]\(([^)]+)\)", text):
-            if "://" not in reference and not reference.startswith("#"):
-                pending.append(path.parent / reference.split("#", 1)[0])
-    for relative in ("scripts/check-codex-integration.py", "scripts/manage-codex-integration.py"):
-        tool = ROOT / relative
-        guards[str(tool)] = state(tool)
-        require(guards[str(tool)]["kind"] == "file", f"Required integration tool unavailable: {tool}")
+    # Validate the compatibility entry's complete, intentionally small graph.
+    router = ROOT / ".agents/skills/task-router/SKILL.md"
+    for reference in re.findall(r"\[[^\]]*\]\(([^)]+)\)", read_regular(router).decode()):
+        if "://" not in reference and not reference.startswith("#"):
+            target = (router.parent / reference.split("#", 1)[0]).resolve(strict=True)
+            require(target.is_relative_to(ROOT) and target.is_file(), "Invalid compatibility resource")
+            guards[str(target)] = state(target)
     return expected
 
 
@@ -219,8 +237,9 @@ def discovery(ctx, guards, expected_size):
             skills = layer.get("skills", {})
             require(skills.get("include_instructions", True), f"Skill instructions disabled: {path}")
             for rule in skills.get("config", []):
-                match = rule.get("name") == "task-router" or "task-router" in rule.get("path", "")
-                require(not match or rule.get("enabled", True), f"Task Router disabled: {path}")
+                names = ["task-router", *checker()["skill_sources"](ROOT)]
+                match = rule.get("name") in names or any(name in rule.get("path", "") for name in names)
+                require(not match or rule.get("enabled", True), f"g3stack skill disabled: {path}")
     budget = min(budgets) if budgets else 32768
     require(expected_size <= budget, f"Artifact exceeds conservative instruction budget ({budget})")
     return budget
@@ -266,7 +285,12 @@ def plan(ctx):
               "limitations": ["Static filesystem checks only; future CLI/project/cloud overrides unknown.",
                               "Do not edit sources or installation concurrently."]}
     result["installed_state"] = {}
-    for role, path in targets(ctx).items():
+    try:
+        locations = targets(ctx)
+    except (OSError, ValueError) as error:
+        conflicts.append(str(error))
+        locations = {}
+    for role, path in locations.items():
         try:
             result["installed_state"][role] = {"path": str(path), "state": state(path)}
         except (OSError, Conflict) as error:
@@ -275,7 +299,7 @@ def plan(ctx):
         expected = source_inputs(guards)
         result["expected_artifact"] = checker()["fingerprint"](expected)
         locations = targets(ctx)
-        require(len(set(locations.values())) == 3, "Managed paths overlap")
+        require(len(set(locations.values())) == len(locations), "Managed paths overlap")
         require(not Path(ctx["backup_base"]).is_relative_to(ROOT), "Backup must be outside repository")
         require(not any(path.is_relative_to(Path(ctx["backup_base"])) for path in locations.values()),
                 "Managed integration paths overlap the backup directory")
@@ -289,11 +313,19 @@ def plan(ctx):
         for role, path in locations.items():
             before = state(path)
             require(before.get("uid", os.geteuid()) == os.geteuid(), f"Foreign resource owner: {path}")
-            if role == "router":
-                source = ROOT / ".agents/skills/task-router"
+            if role.startswith("skill:") and role.removeprefix("skill:") in LEGACY_NAMES:
+                name = role.removeprefix("skill:")
+                source = ROOT / "skills" / name
+                require(before["kind"] == "absent" or
+                        (before["kind"] == "symlink" and path.resolve(strict=False) == source.resolve(strict=False)),
+                        f"Refusing to retire foreign legacy skill object: {path}")
+                after = {"kind": "absent"}
+            elif role == "router" or role.startswith("skill:"):
+                source = (ROOT / ".agents/skills/task-router" if role == "router"
+                          else checker()["skill_sources"](ROOT)[role.removeprefix("skill:")])
                 require(before["kind"] == "absent" or
                         (before["kind"] == "symlink" and path.resolve(strict=True) == source.resolve(strict=True)),
-                        f"Conflicting Task Router object: {path}")
+                        f"Conflicting skill object: {path}")
                 after = before if before["kind"] == "symlink" else {
                     "kind": "symlink", "target": str(source), "mode": 0o777,
                     "uid": os.geteuid(), "gid": os.getegid()}
@@ -496,6 +528,9 @@ def verify_installed(ctx, expected):
     outcomes = [checks["compare"](locations["artifact"], expected, "generated artifact"),
                 checks["compare"](locations["instructions"], expected, "installed global instructions"),
                 checks["check_router"](locations["router"], ROOT / ".agents/skills/task-router")]
+    outcomes.extend(checks["check_skill"](locations["skill:" + name], source, name)
+                    for name, source in checks["skill_sources"](ROOT).items())
+    outcomes.extend(state(locations["skill:" + name])["kind"] == "absent" for name in LEGACY_NAMES)
     require(all(outcomes), "Installed integration verification failed")
 
 
@@ -553,7 +588,7 @@ def install(ctx, approved):
     emit(proposal)
     require(not proposal["conflicts"], "Preflight failed; nothing installed")
     require(approved == proposal["plan_hash"], "Install requires --approve-plan with the current reviewed plan_hash")
-    expected = b"\n".join(read_regular(ROOT / source) for source in SOURCES)
+    expected = read_regular(ROOT / SOURCE)
     if not proposal["changes"]:
         verify_installed(ctx, expected)
         return {"status": "already-installed", "changes": []}

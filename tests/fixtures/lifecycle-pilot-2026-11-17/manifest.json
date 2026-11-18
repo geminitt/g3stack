@@ -1,0 +1,8 @@
+{
+  "kind": "Frozen historical evaluator input identities; not evidence for the current runtime.",
+  "sources": {
+    "scripts/lifecycle-eval.py": "44a969d4adb613ef78c658bee0444d8c135edfac1da4408d89ca50ed61c5ff1a",
+    "scripts/test-lifecycle-eval.py": "ebb2924faac8bb13067c6af3ecb665fc30ae721d25697400c43ccd90e39f6481",
+    "experiments/lifecycle/PROTOCOL.md": "28c42dfe8e8fb713c05bb5514db39e734cb668b72ebede07a2bdc0bec0e56ad2"
+  }
+}

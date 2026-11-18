@@ -1,0 +1,285 @@
+{
+  "purpose": "Attribution and source identity only; native skill discovery uses SKILL.md files.",
+  "adaptation": "Curated g3stack procedures with normalized scope, host tools, evidence and permission boundaries. Upstream snapshots remain unchanged in vendor.",
+  "skills": {
+    "g3-research": {
+      "upstream": [],
+      "previous_local_sources": {
+        "playbooks/research-exploration.md": "feb4d204c30fb4ac04613f38fbb1a8e0a327dc929c024c0e1505d2072883a976",
+        "playbooks/investigation.md": "b2e3255f62889b8642d2500aa84f81f0d66fca5fd7a8a6cadb08d02e156e81f6",
+        ".agents/skills/task-router/references/evidence-research.md": "4ddf21ba75e9a22117faea235fbe38d6c061570b92e8a8de1bf3f332402d0fd5"
+      }
+    },
+    "g3-experiment": {
+      "upstream": [],
+      "previous_local_sources": {
+        "playbooks/research-experiment.md": "4cc060901d747c6ec7d2027b558f1af8b57b0750ff3d68b56340231f27e6cb0c",
+        ".agents/skills/task-router/references/evaluation.md": "8bbc72c1d1bb408f33f4b704b0eb33d05c75cfa80588c410a3b1b4391c65d53e"
+      }
+    },
+    "g3-plan": {
+      "upstream": [
+        {
+          "path": "vendor/devflow/plugin/skills/superpowers/upstream/skills/writing-plans/GUIDE.md",
+          "sha256": "a1890c0d037e7bde01d65d4f6247a225d64245f5dc5a7880911b8c54adff69f9",
+          "url": "https://github.com/chinhkrb113/devflow-kit/blob/f1c55a03b0e2d679f533303023793224722c7e99/plugin/skills/superpowers/upstream/skills/writing-plans/GUIDE.md"
+        }
+      ],
+      "previous_local_sources": {}
+    },
+    "g3-build": {
+      "upstream": [
+        {
+          "path": "vendor/devflow/plugin/skills/superpowers/upstream/skills/executing-plans/GUIDE.md",
+          "sha256": "d4060034eb9ed32214f09e102ca3fc2b825c2248816642a14d07b6b358e98a6f",
+          "url": "https://github.com/chinhkrb113/devflow-kit/blob/f1c55a03b0e2d679f533303023793224722c7e99/plugin/skills/superpowers/upstream/skills/executing-plans/GUIDE.md"
+        },
+        {
+          "path": "vendor/devflow/plugin/skills/ponytail/SKILL.md",
+          "sha256": "6eec2542904c06fea3b6e9e2d6621cfaad9f24bd7494e6049a26537196e0d03d",
+          "url": "https://github.com/chinhkrb113/devflow-kit/blob/f1c55a03b0e2d679f533303023793224722c7e99/plugin/skills/ponytail/SKILL.md"
+        }
+      ],
+      "previous_local_sources": {}
+    },
+    "g3-debug": {
+      "upstream": [
+        {
+          "path": "vendor/devflow/plugin/skills/superpowers/upstream/skills/systematic-debugging/GUIDE.md",
+          "sha256": "92763429c262013ecb1270934105fccba1ab03820408fc14d8c7e9486ac6203d",
+          "url": "https://github.com/chinhkrb113/devflow-kit/blob/f1c55a03b0e2d679f533303023793224722c7e99/plugin/skills/superpowers/upstream/skills/systematic-debugging/GUIDE.md"
+        },
+        {
+          "path": "vendor/pstack/skills/tdd/SKILL.md",
+          "sha256": "eeb868e2dfebee528d730a67d7b17498fac4bb85dec2e38bc5c5176aca4d5d2f",
+          "url": "https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/tdd/SKILL.md"
+        }
+      ],
+      "previous_local_sources": {}
+    },
+    "g3-refactor": {
+      "upstream": [
+        {
+          "path": "vendor/pstack/skills/poteto-mode/playbooks/refactoring.md",
+          "sha256": "f11ff3c3ff0ea09d3ce2db0a3c11be3a3c11c279c04b83324723d0e0f984755b",
+          "url": "https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/refactoring.md"
+        }
+      ],
+      "previous_local_sources": {}
+    },
+    "g3-prototype": {
+      "upstream": [
+        {
+          "path": "vendor/pstack/skills/poteto-mode/playbooks/prototype.md",
+          "sha256": "7aa1f52c691c3d46d5afc527b23f90977fce869ce33573c73c81a4c7f0cde962",
+          "url": "https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/prototype.md"
+        }
+      ],
+      "previous_local_sources": {}
+    },
+    "g3-design": {
+      "upstream": [
+        {
+          "path": "vendor/pstack/skills/architect/SKILL.md",
+          "sha256": "aea83d7aa109eb73402182701b14c289844663ad9c8f959fedbef2df66787ce0",
+          "url": "https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/architect/SKILL.md"
+        },
+        {
+          "path": "vendor/pstack/skills/principle-model-the-domain/SKILL.md",
+          "sha256": "97c6214dc6a18b93177dda6429185a8640878b36ddee6ec9400c23a0eb9be2d8",
+          "url": "https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/principle-model-the-domain/SKILL.md"
+        },
+        {
+          "path": "vendor/devflow/plugin/skills/devflow/references/system-workflow.md",
+          "sha256": "a3ab9a787f0c1047f6cae3b884af0d554306b9778c3dfe60033b5c795cefc349",
+          "url": "https://github.com/chinhkrb113/devflow-kit/blob/f1c55a03b0e2d679f533303023793224722c7e99/plugin/skills/devflow/references/system-workflow.md"
+        }
+      ],
+      "previous_local_sources": {}
+    },
+    "g3-verify": {
+      "upstream": [
+        {
+          "path": "vendor/pstack/skills/create-verification-skill/SKILL.md",
+          "sha256": "d353973547bf8ad8977eca645f4cd4feaed0d32f4b43d1448f906b0a76c4d694",
+          "url": "https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/create-verification-skill/SKILL.md"
+        },
+        {
+          "path": "vendor/pstack/skills/maintain-verification-skill/SKILL.md",
+          "sha256": "515c0eaa054b3f6be1b1fb06f2c2f173c80fddb58bbcac57576f89c479bc68e8",
+          "url": "https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/maintain-verification-skill/SKILL.md"
+        }
+      ],
+      "previous_local_sources": {
+        "kits/project-verification/SKILL.md": "436199021c05b8bbc37c9625078a0e877caaac95f35a8f7ec46f58cbc712767a"
+      }
+    },
+    "g3-measure": {
+      "upstream": [
+        {
+          "path": "vendor/pstack/skills/benchmark-checklist/SKILL.md",
+          "sha256": "5efd79495e3eebf3b53814861330fe812458212958f8f009492e866c329161f6",
+          "url": "https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/benchmark-checklist/SKILL.md"
+        },
+        {
+          "path": "vendor/pstack/skills/poteto-mode/playbooks/perf-issue.md",
+          "sha256": "0eb3130e34798cdc0971eb1b3582856cb81023ccab0abeb64301458660be15a1",
+          "url": "https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/perf-issue.md"
+        },
+        {
+          "path": "vendor/pstack/skills/poteto-mode/playbooks/hillclimb.md",
+          "sha256": "a1d71e026d648991646533539939641f33508d5a02340f5041482ddd58116216",
+          "url": "https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/hillclimb.md"
+        },
+        {
+          "path": "vendor/pstack/skills/poteto-mode/playbooks/eval.md",
+          "sha256": "369bfda8bf305fb57bf4cabada7862c41dc21f1dc0ad7993cfcd29d0a4d99a68",
+          "url": "https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/eval.md"
+        },
+        {
+          "path": "vendor/pstack/skills/poteto-mode/playbooks/runtime-forensics.md",
+          "sha256": "79634d9bbc1a6fef3fa5c852c1c723d525f7fab45568e9637121e4afc058405f",
+          "url": "https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/runtime-forensics.md"
+        },
+        {
+          "path": "vendor/pstack/skills/poteto-mode/playbooks/trace-forensics.md",
+          "sha256": "a2d5e20b544835755407b9bdd945e2b595d2e5f826b44c438cbadf92e7efd797",
+          "url": "https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/trace-forensics.md"
+        }
+      ],
+      "previous_local_sources": {}
+    },
+    "g3-review": {
+      "upstream": [
+        {
+          "path": "vendor/devflow/plugin/skills/open-code-review/SKILL.md",
+          "sha256": "d86e1a8ab33cd1cd5292ce2937fffbe737b0f07e8f3572fef197224f7f098367",
+          "url": "https://github.com/chinhkrb113/devflow-kit/blob/f1c55a03b0e2d679f533303023793224722c7e99/plugin/skills/open-code-review/SKILL.md"
+        },
+        {
+          "path": "vendor/pstack/skills/blast-radius/SKILL.md",
+          "sha256": "4248d03e22365207d2e5f90c9542720f80a88a6b42fd542ef88dde3cf9f9223f",
+          "url": "https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/blast-radius/SKILL.md"
+        },
+        {
+          "path": "vendor/pstack/skills/interrogate/SKILL.md",
+          "sha256": "3f3c2e9b8cf6b180dba9f32a4aff85e5691b09805232468e37a0ba45437a9984",
+          "url": "https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/interrogate/SKILL.md"
+        }
+      ],
+      "previous_local_sources": {}
+    },
+    "g3-ui": {
+      "upstream": [
+        {
+          "path": "vendor/devflow/plugin/skills/devflow/references/ui-task-policy.md",
+          "sha256": "7617602d78f015dc4d7ef4cee5360c3cd672e4b06e957e673c3e4c6d5a275577",
+          "url": "https://github.com/chinhkrb113/devflow-kit/blob/f1c55a03b0e2d679f533303023793224722c7e99/plugin/skills/devflow/references/ui-task-policy.md"
+        },
+        {
+          "path": "vendor/devflow/plugin/skills/frontend-design/SKILL.md",
+          "sha256": "5a6623cf6deacbb2b1df129861dbbf336ede2a3d67cfcfd7edf79908955d1ab8",
+          "url": "https://github.com/chinhkrb113/devflow-kit/blob/f1c55a03b0e2d679f533303023793224722c7e99/plugin/skills/frontend-design/SKILL.md"
+        },
+        {
+          "path": "vendor/devflow/plugin/skills/ui-ux-pro-max/SKILL.md",
+          "sha256": "0cbe5c3fdecafc86ae678f9b331ffb1e99c1cecafd4544181bbd19e29e67ef23",
+          "url": "https://github.com/chinhkrb113/devflow-kit/blob/f1c55a03b0e2d679f533303023793224722c7e99/plugin/skills/ui-ux-pro-max/SKILL.md"
+        },
+        {
+          "path": "vendor/devflow/plugin/skills/taste-skill/SKILL.md",
+          "sha256": "2d65401701001721f19cf84c35a433f65f7c792de484323402b00d01afc16501",
+          "url": "https://github.com/chinhkrb113/devflow-kit/blob/f1c55a03b0e2d679f533303023793224722c7e99/plugin/skills/taste-skill/SKILL.md"
+        },
+        {
+          "path": "vendor/devflow/plugin/skills/ui-taste/SKILL.md",
+          "sha256": "cde17e3c05dbbe2517ca417f848e7ce9ae0d8de2bbdf0826aa59a7c2b43cdb8d",
+          "url": "https://github.com/chinhkrb113/devflow-kit/blob/f1c55a03b0e2d679f533303023793224722c7e99/plugin/skills/ui-taste/SKILL.md"
+        }
+      ],
+      "previous_local_sources": {}
+    },
+    "g3-diagram": {
+      "upstream": [
+        {
+          "path": "vendor/devflow/plugin/skills/diagram-design/SKILL.md",
+          "sha256": "845823a0d590b1019ab1622f28e975611e812e2a196fc395d47347cf1097f2e3",
+          "url": "https://github.com/chinhkrb113/devflow-kit/blob/f1c55a03b0e2d679f533303023793224722c7e99/plugin/skills/diagram-design/SKILL.md"
+        },
+        {
+          "path": "vendor/devflow/plugin/skills/diagram-design/GUIDE.md",
+          "sha256": "83891e2c5e1f1f7eac1279a3ba7ffd26d0f56f1293d675dbcba3a0fe52fb705b",
+          "url": "https://github.com/chinhkrb113/devflow-kit/blob/f1c55a03b0e2d679f533303023793224722c7e99/plugin/skills/diagram-design/GUIDE.md"
+        }
+      ],
+      "previous_local_sources": {}
+    },
+    "g3-security": {
+      "upstream": [
+        {
+          "path": "vendor/devflow/plugin/skills/security-audit/SKILL.md",
+          "sha256": "66edc9dd392ecb87054f3b68f11a7cf595efbef2df188515a0799d50e524e417",
+          "url": "https://github.com/chinhkrb113/devflow-kit/blob/f1c55a03b0e2d679f533303023793224722c7e99/plugin/skills/security-audit/SKILL.md"
+        },
+        {
+          "path": "vendor/devflow/plugin/skills/security-audit/GUIDE.md",
+          "sha256": "2a68ab5531dfccedac2b054e0814f2b6517daae9887b3ee40afcc5d8a7063c3a",
+          "url": "https://github.com/chinhkrb113/devflow-kit/blob/f1c55a03b0e2d679f533303023793224722c7e99/plugin/skills/security-audit/GUIDE.md"
+        }
+      ],
+      "previous_local_sources": {}
+    },
+    "g3-formal": {
+      "upstream": [
+        {
+          "path": "vendor/pstack/skills/create-formal-verification-skill/SKILL.md",
+          "sha256": "30ef0ac27612ecd16fdc081112113221d673053cef3f8603db11932193861211",
+          "url": "https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/create-formal-verification-skill/SKILL.md"
+        },
+        {
+          "path": "vendor/pstack/skills/maintain-formal-verification-skill/SKILL.md",
+          "sha256": "0c96f54293542d3818b68754562b338073958781a9684454611dca37592e2d2c",
+          "url": "https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/maintain-formal-verification-skill/SKILL.md"
+        },
+        {
+          "path": "vendor/pstack/skills/statechart/SKILL.md",
+          "sha256": "010b7b4532406739b1c3a426d1a45f02bb618a42561fc96b3976e064a7f8384d",
+          "url": "https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/statechart/SKILL.md"
+        }
+      ],
+      "previous_local_sources": {}
+    },
+    "g3-recover": {
+      "upstream": [
+        {
+          "path": "vendor/pstack/skills/principle-attack-the-premise/SKILL.md",
+          "sha256": "831e916c540f4b6b720b7472aeea6e6ef93996655e36cc2517221f6f2081b480",
+          "url": "https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/principle-attack-the-premise/SKILL.md"
+        }
+      ],
+      "previous_local_sources": {
+        "playbooks/project-lifecycle.md": "c884d945a334cef2a247dea314a441b8a6572cf5edcf844c94b2e86c87021cdd"
+      }
+    }
+  },
+  "coordination_influences": {
+    "purpose": "Design inspiration only; g3stack owns its approved coordination contract. No original vendor controller is activated.",
+    "sources": [
+      {
+        "path": "vendor/pstack/skills/poteto-mode/SKILL.md",
+        "sha256": "67fd2c54fd25ebfae1e46db62c4b2e54f806a7ea9dfb6c83922de37e9b9635ea",
+        "url": "https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md"
+      },
+      {
+        "path": "vendor/pstack/skills/figure-it-out/SKILL.md",
+        "sha256": "30693f2510b111128a6bae0d0ac35f97d972a30c0b84364dc87290b9fdc3b699",
+        "url": "https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/figure-it-out/SKILL.md"
+      },
+      {
+        "path": "vendor/pstack/skills/poteto-mode/playbooks/autonomous-run.md",
+        "sha256": "613c7b3079779ecfa27e1fb41a082711b5a1207e720b87f75c3aaa9b25aac480",
+        "url": "https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/autonomous-run.md"
+      }
+    ]
+  }
+}

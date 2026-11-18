@@ -29,11 +29,11 @@ class IntegrationTests(unittest.TestCase):
         base = Path(temporary.name)
         self.repo, self.home = base / "repo", base / "home"
         self.home.mkdir()
-        for relative in ("instructions", "integrations/codex", "playbooks",
+        for relative in ("instructions", "integrations/codex", "archive", "codex", "docs", "kits", "vendor",
                          ".agents/skills/task-router"):
             shutil.copytree(ROOT / relative, self.repo / relative)
         (self.repo / "scripts").mkdir()
-        for name in ("manage-codex-integration.py", "check-codex-integration.py"):
+        for name in ("manage-codex-integration.py", "check-codex-integration.py", "convert-pstack.py"):
             shutil.copy2(ROOT / "scripts" / name, self.repo / "scripts" / name)
         self.script = self.repo / "scripts/manage-codex-integration.py"
         spec = importlib.util.spec_from_file_location("fixture_manager", self.script)
@@ -234,6 +234,49 @@ else: m.install(ctx, m.plan(ctx)["plan_hash"])
                               cwd=self.home, env=self.env, capture_output=True,
                               text=True, timeout=15)
 
+    def test_installs_only_personal_source_without_normalizing_bytes(self):
+        personal = self.repo / "instructions/personal.md"
+        payload = b"# Personal agreements\r\n\r\nExact source bytes.\r\n"
+        personal.write_bytes(payload)
+        self.install()
+        self.assertEqual(self.installed.read_bytes(), payload)
+        self.assertEqual(self.artifact.read_bytes(), payload)
+        self.assertEqual(self.checker_result().returncode, 0)
+
+    def test_orchestration_changes_do_not_change_global_bytes(self):
+        personal = self.repo / "instructions/personal.md"
+        personal.write_bytes(b"# Personal agreements\n")
+        self.install()
+        before = self.installed.read_bytes()
+        core = self.repo / "instructions/core.md"
+        core.write_bytes(core.read_bytes() + b"\nOrchestration-only change.\n")
+        self.assertEqual(self.checker_result().returncode, 0)
+        self.assertEqual(self.plan()["changes"], [])
+        self.assertEqual(self.installed.read_bytes(), before)
+
+    def test_personal_source_change_invalidates_approved_plan(self):
+        personal = self.repo / "instructions/personal.md"
+        personal.write_bytes(b"# Personal agreements\n")
+        approved = self.plan()["plan_hash"]
+        personal.write_bytes(b"# Changed personal agreements\n")
+        with self.assertRaises(self.manager.Conflict):
+            self.quiet(self.manager.install, self.ctx, approved)
+        self.assertEqual(self.snapshot(), self.original)
+
+    def test_missing_empty_or_linked_personal_source_blocks_install(self):
+        personal = self.repo / "instructions/personal.md"
+        for kind in ("missing", "empty", "linked"):
+            with self.subTest(kind=kind):
+                personal.unlink(missing_ok=True)
+                if kind == "empty":
+                    personal.write_bytes(b" \n")
+                elif kind == "linked":
+                    personal.symlink_to(self.repo / "instructions/core.md")
+                self.assertTrue(self.plan()["conflicts"])
+                with self.assertRaises(self.manager.Conflict):
+                    self.install()
+                self.assertEqual(self.snapshot(), self.original)
+
     def test_checker_rejects_symlinked_matching_files(self):
         self.install()
         self.assertEqual(self.checker_result().returncode, 0)
@@ -259,12 +302,12 @@ else: m.install(ctx, m.plan(ctx)["plan_hash"])
                 alias.unlink()
                 self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
 
-    def test_each_actual_router_playbook_reference_is_checked(self):
+    def test_each_actual_router_skill_reference_is_checked(self):
         router = self.repo / ".agents/skills/task-router/SKILL.md"
         references = re.findall(r"\[[^\]]*\]\(([^)]+)\)", router.read_text())
         paths = [(router.parent / ref).resolve() for ref in references
-                 if "/playbooks/" in ref]
-        self.assertTrue(paths, "No actual Router playbook references found")
+                 if "/skills/g3" in ref]
+        self.assertTrue(paths, "No actual router skill references found")
         for path in paths:
             with self.subTest(playbook=path.name):
                 data = path.read_bytes()
@@ -272,6 +315,107 @@ else: m.install(ctx, m.plan(ctx)["plan_hash"])
                 self.assertTrue(self.plan()["conflicts"], f"Missing reference accepted: {path}")
                 path.write_bytes(data)
         self.assertFalse(self.plan()["conflicts"])
+
+    def test_shared_vendor_manifest_is_checked_before_install(self):
+        router = self.repo / ".agents/skills/task-router/SKILL.md"
+        # The source manifest remains a required resource for the native library.
+        with router.open("a") as stream:
+            stream.write("\n[Recovery](../../../codex/skills/g3-principle-attack-the-premise/SKILL.md)\n")
+        self.assertFalse(self.plan()["conflicts"])
+        dependency = self.repo / "vendor/source-manifest.json"
+        dependency.unlink()
+        self.assertTrue(self.plan()["conflicts"])
+        with self.assertRaises(self.manager.Conflict):
+            self.install()
+        self.assertEqual(self.snapshot(), self.original)
+
+
+    def test_engineering_checker_is_a_required_transitive_source(self):
+        router = self.repo / ".agents/skills/task-router/SKILL.md"
+        with router.open("a") as stream:
+            stream.write("\n[Build](../../../codex/skills/g3-figure-it-out/SKILL.md)\n")
+        self.assertFalse(self.plan()["conflicts"])
+        (self.repo / "kits/engineering/check.py").unlink()
+        self.assertTrue(self.plan()["conflicts"])
+        with self.assertRaises(self.manager.Conflict):
+            self.install()
+        self.assertEqual(self.snapshot(), self.original)
+
+    def test_whole_library_links_install_and_restore(self):
+        sources = self.manager.checker()["skill_sources"](self.repo)
+        self.assertEqual(len(sources), 58)
+        result = self.install()
+        for name, source in sources.items():
+            link = self.home / ".agents/skills" / name
+            self.assertTrue(link.is_symlink(), name)
+            self.assertEqual(link.resolve(), source)
+        self.assertEqual(self.checker_result().returncode, 0)
+        self.quiet(self.manager.restore, self.ctx, result["backup"])
+        self.assertFalse((self.home / ".agents").exists())
+        self.assertEqual(self.snapshot(), self.original)
+
+    def test_library_collision_blocks_all_installation(self):
+        target = self.home / ".agents/skills/g3-tdd"
+        target.mkdir(parents=True)
+        (target / "owner.txt").write_text("owner data")
+        with self.assertRaises(self.manager.Conflict):
+            self.install()
+        self.assertEqual((target / "owner.txt").read_text(), "owner data")
+        self.assertEqual(self.snapshot(), self.original)
+
+    def test_library_edit_invalidates_approved_plan(self):
+        approved = self.plan()["plan_hash"]
+        source = self.repo / "codex/skills/g3-tdd/SKILL.md"
+        source.write_bytes(source.read_bytes() + b"\nChanged procedure.\n")
+        with self.assertRaises(self.manager.Conflict):
+            self.quiet(self.manager.install, self.ctx, approved)
+        self.assertEqual(self.snapshot(), self.original)
+
+    def test_missing_library_manifest_or_shared_source_blocks_install(self):
+        for relative in ("codex/skills/g3-create-verification-skill/SKILL.md", "codex/CODEX.md"):
+            with self.subTest(source=relative):
+                source = self.repo / relative
+                data = source.read_bytes()
+                source.unlink()
+                self.assertTrue(self.plan()["conflicts"])
+                with self.assertRaises(self.manager.Conflict):
+                    self.install()
+                self.assertEqual(self.snapshot(), self.original)
+                source.write_bytes(data)
+
+    def test_disabled_library_member_blocks_install(self):
+        self.config.write_text('[[skills.config]]\nname = "g3-tdd"\nenabled = false\n')
+        original = self.snapshot()
+        self.assertTrue(self.plan()["conflicts"])
+        with self.assertRaises(self.manager.Conflict):
+            self.install()
+        self.assertEqual(self.snapshot(), original)
+
+    def test_checker_rejects_missing_library_link(self):
+        self.install()
+        (self.home / ".agents/skills/g3-create-verification-skill").unlink()
+        self.assertNotEqual(self.checker_result().returncode, 0)
+
+    def test_owned_legacy_links_are_retired_and_restorable(self):
+        directory = self.home / ".agents/skills"
+        directory.mkdir(parents=True)
+        for name in self.manager.LEGACY_NAMES:
+            (directory / name).symlink_to(self.repo / "skills" / name)
+        result = self.install()
+        self.assertTrue(all(not (directory / name).is_symlink() for name in self.manager.LEGACY_NAMES))
+        self.quiet(self.manager.restore, self.ctx, result["backup"])
+        for name in self.manager.LEGACY_NAMES:
+            self.assertEqual((directory / name).resolve(), self.repo / "skills" / name)
+        self.assertFalse((directory / "g3stack").exists())
+
+    def test_foreign_legacy_name_is_never_retired(self):
+        target = self.home / ".agents/skills/g3-build"
+        target.mkdir(parents=True)
+        (target / "owner.txt").write_text("keep")
+        self.assertTrue(self.plan()["conflicts"])
+        with self.assertRaises(self.manager.Conflict):
+            self.install()
+        self.assertEqual((target / "owner.txt").read_text(), "keep")
 
 
 if __name__ == "__main__":

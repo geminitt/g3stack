@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check Codex instruction bytes and the global task-router link without writes.
+"""Check Codex instruction bytes and full converted skill links without writes.
 
 Run with Python 3 from any directory. CODEX_HOME selects the instruction
 directory (default: ~/.codex). The user skill link is always under
@@ -12,6 +12,7 @@ This checks files and link resolution, not live Codex loading or behavior.
 import hashlib
 import os
 from pathlib import Path
+import re
 import stat
 
 
@@ -58,8 +59,34 @@ def compare(path, expected, check):
     return matches
 
 
-def check_router(link, source):
-    check = "task-router link"
+def skill_sources(root):
+    """Discover the maintained library from native manifests, not a registry."""
+    library = root / "codex/skills"
+    if not library.is_dir() or library.is_symlink():
+        raise ValueError("Missing or linked g3stack skill library")
+    result = {}
+    for source in sorted(library.iterdir()):
+        if source.is_symlink() or not source.is_dir():
+            raise ValueError(f"Invalid skill directory: {source}")
+        manifest = source / "SKILL.md"
+        if manifest.is_symlink() or not manifest.is_file():
+            raise ValueError(f"Missing or linked skill manifest: {manifest}")
+        body = manifest.read_text(encoding="utf-8")
+        frontmatter = body.split("---", 2)
+        if not body.startswith("---\n") or len(frontmatter) != 3:
+            raise ValueError(f"Invalid skill frontmatter: {manifest}")
+        name = re.search(r"(?m)^name: ([a-z0-9-]+)$", frontmatter[1])
+        description = re.search(r"(?m)^description: (.+)$", frontmatter[1])
+        if not name or name.group(1) != source.name or not description:
+            raise ValueError(f"Invalid skill identity/description: {manifest}")
+        result[source.name] = source
+    if not result:
+        raise ValueError("Empty g3stack skill library")
+    return result
+
+
+def check_skill(link, source, name):
+    check = name + " link"
     detail = f"path={str(link)!r}; expected source={str(source)!r}"
     try:
         # Strict resolution rejects missing targets and symlink loops.
@@ -89,6 +116,10 @@ def check_router(link, source):
     return True
 
 
+def check_router(link, source):
+    return check_skill(link, source, "task-router")
+
+
 def main():
     root = Path(__file__).resolve().parent.parent
     try:
@@ -101,22 +132,14 @@ def main():
     print(f"Repository: {str(root)!r}")
     print(f"Codex home: {str(codex_home)!r}")
 
-    parts = []
-    for relative in ("instructions/core.md", "instructions/environment.md",
-                     "integrations/codex/adapter.md"):
-        path = root / relative
-        data = read_bytes(path, "source " + relative)
-        parts.append(data)
-        if data is not None:
-            report("PASS", "source " + relative,
-                   f"path={str(path)!r}; {fingerprint(data)}")
-
-    # Observed artifact convention: raw source bytes in this order, with
-    # one additional LF between files. Preserve source newlines, including
-    # the final source's trailing LF; do not decode, strip, or normalize.
-    expected = None if any(part is None for part in parts) else b"\n".join(parts)
+    source = root / "instructions/personal.md"
+    # The global is one source's raw bytes, without concatenation or normalization.
+    expected = read_bytes(source, "personal source", regular_only=True)
+    if expected is not None and not expected.strip():
+        report("FAIL", "personal source", "source is empty")
+        expected = None
     if expected is None:
-        report("UNKNOWN", "expected artifact", "one or more sources could not be read")
+        report("UNKNOWN", "expected artifact", "personal source unavailable or empty")
     else:
         report("PASS", "expected artifact", fingerprint(expected))
 
@@ -126,7 +149,14 @@ def main():
                            "installed global instructions")
     router_ok = check_router(home / ".agents/skills/task-router",
                              root / ".agents/skills/task-router")
-    return 0 if generated_ok and installed_ok and router_ok else 1
+    try:
+        results = [check_skill(home / ".agents/skills" / name, source, name)
+                   for name, source in skill_sources(root).items()]
+        library_ok = all(results)
+    except (OSError, ValueError) as error:
+        report("FAIL", "skill library", str(error))
+        library_ok = False
+    return 0 if generated_ok and installed_ok and router_ok and library_ok else 1
 
 
 if __name__ == "__main__":

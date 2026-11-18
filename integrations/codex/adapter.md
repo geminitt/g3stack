@@ -1,31 +1,19 @@
-# Codex Adapter
+# Codex integration
 
-g3stack is the authoritative source for these instructions. This adapter is
-intended for a generated global `AGENTS.md` containing the approved Shared
-Core and Owner Environment Restrictions.
+This is integration documentation, not a global policy source.
 
-## Instruction use
+`instructions/personal.md` remains the sole global source, copied byte for byte
+to `AGENTS.generated.md` and the installed global AGENTS.md. No playbook, host
+adapter or goal contract is concatenated into it.
 
-- When approved Core and Environment contents are embedded and supplied
-  in context, apply them directly. Do not reread their source merely
-  because an ordinary task starts. Recheck only when active instructions
-  require it or needed content is missing, incomplete, or possibly stale.
-  Follow Core's required-source rules; do not invent source paths.
-- Apply the relevant project instructions supplied by Codex. Read an
-  additional project `CLAUDE.md` only when the owner or applicable project
-  instructions explicitly require it, or it is an explicit task input.
-- Do not treat Markdown links or `@path` expressions as imports or proof
-  that Codex loaded their targets.
+Native user skill symlinks expose all 58 converted entries from `codex/skills/`.
+The main entry `$g3stack` loads the full procedure, [execution mapping](../../codex/CODEX.md)
+and [goal contract](../../codex/GOAL.md). The old task-router is an explicit-only
+compatibility pointer. The installer retires the recognized 16 old summary links
+and preserves transaction backups. It does not change Codex model/configuration
+or the owner's active Claude setup.
 
-## Skills
-
-- Select `$task-router` through native Codex skill discovery when invoked
-  or when its advertised scope fits. Read the selected `SKILL.md` from
-  its discovered location unless its complete, current instructions are
-  already available. Skill metadata alone is not the loaded body.
-- Resolve a selected `SKILL.md` to its real filesystem path before
-  resolving relative references, not from the target project's working
-  directory.
-- Repository availability does not establish global discovery. If a
-  requested skill is unavailable, report that limitation instead of
-  claiming its use.
+The mappings follow the host's [native skill documentation](https://learn.chatgpt.com/docs/build-skills.md),
+checked November 18, 2026, and the actual tools available in this session.
+Symlink installation and body retention do not prove new-session discovery or
+procedural effectiveness. See [development](../../docs/development.md).
